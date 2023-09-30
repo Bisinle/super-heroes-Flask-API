@@ -53,7 +53,7 @@ pytz==2023.3.post1
 referencing==0.8.9
 
 six==1.16.0
-soupsieve==2.5
+
 SQLAlchemy==2.0.20
 stack-data==0.6.2
 tk==0.1.0
