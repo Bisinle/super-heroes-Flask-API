@@ -159,6 +159,21 @@ class Heroes(Resource):
 
 
 
+
+@Hero_api.route('/hero/<int:id>')
+class Hero_by_id(Resource):
+
+    def get(self,id):  
+        hero = Hero.query.filter_by(id=id).first()
+        if hero:
+            return make_response(heroe_schema.dump(hero))
+        else:
+            response = make_response(
+                {'error':'Hero not found, please choose another one'}
+                ,404
+            )
+
+            return response
       
 
   
