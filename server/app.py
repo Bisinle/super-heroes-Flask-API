@@ -176,7 +176,21 @@ class Hero_by_id(Resource):
             return response
       
 
-  
+    
+    '''----------------------Hero D E L E T I O N --------------------'''
+    def delete(self,id):
+        hero = Hero.query.filter_by(id=id).first()
+        if hero:
+            db.session.delete(hero)
+            db.session.commit()
+            return  make_response(
+                {
+                    'deleted':True,
+                 'message':"hero deleted successfully"
+                 } ,200)
+        
+
+        return {'ERROR!': 'hero you are trying to delete does not exist'}
 
 
 
