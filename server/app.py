@@ -133,12 +133,36 @@ class Heroes(Resource):
                 {'message':'no heros in the area'}
                 ,404)
             return response
-   
+     
+    @Hero_api.expect(hero_input)
+    def post(self):
+        heroes = Hero.query.all()
+        #data is in the payload
+        hero = Hero(
+            name= Hero_api.payload['name'],
+            super_name= Hero_api.payload['super_name'],
+        )
+       
+        if hero.super_name not in  [ h.super_name for h in heroes]:
+            db.session.add(hero)
+            db.session.commit()
+
+            return make_response(heroe_schema.dump(hero),201)
+        else:
+            response = make_response(
+                {'error':'validation error',
+                 'message':'hero  super_name already exists'}
+                ,404
+            )
+
+            return response
 
 
 
+      
 
-        
+  
+
 
 
 @Power_api.route('/powers')
