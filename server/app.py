@@ -279,6 +279,21 @@ class Power_by_id(Resource):
 
       
      
+    '''----------------------Hero D E L E T I O N --------------------'''
+    def delete(self,id):
+        power = Power.query.filter_by(id=id).first()
+        if power:
+            db.session.delete(power)
+            db.session.commit()
+            return  make_response(
+                {
+                    'deleted':True,
+                 'message':"power deleted successfully"
+                 } ,200)
+        
+
+        return {'ERROR!': 'power you are trying to delete does not exist'}
+    
 
 
 
