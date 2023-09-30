@@ -31,12 +31,12 @@ class Hero(db.Model):
 
 
 
-    # # ---------------------------------------validations
-    # @validates('name')
-    # def name_validation(self, key, name):
-    #     if len(name)>=50:
-    #         raise ValueError('Name must be less than 50 characters')
-    #     return name
+    # ---------------------------------------validations
+    # @validates('super_name')
+    # def name_validation(self, key, super_name):
+    #     if super_name in [h.super_name for h in Hero.query.all()]:
+    #         raise ValueError('super_name already exists in the database')
+    #     return super_name
     
 
 

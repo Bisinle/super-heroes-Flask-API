@@ -76,6 +76,10 @@ hero_input= api.model('post_hero',{
 
 })
 
+hero_update = api.model('update_hero',{
+    'super_name':fields.String
+})
+
 
 class PowerSchema(ma.SQLAlchemyAutoSchema):
     
@@ -129,67 +133,13 @@ class Heroes(Resource):
                 {'message':'no heros in the area'}
                 ,404)
             return response
-     
-    #  @Hero_api.expects(hero_input)
-    # def post(self):
+   
 
 
 
 
-@Hero_api.route('/hero/<int:id>')
-class Hero_by_id(Resource):
-
-    def get(self,id):  
-        hero = Hero.query.filter_by(id=id).first()
-        if hero:
-            return make_response(heroe_schema.dump(hero))
-        else:
-            response = make_response(
-                {'error':'Hero not found, please choose another one'}
-                ,404
-            )
-            
-            return response
-      
-
-    
-    '''----------------------Hero D E L E T I O N --------------------'''
-    def delete(self,id):
-        hero = Hero.query.filter_by(id=id).first()
-        if hero:
-            db.session.delete(hero)
-            db.session.commit()
-            return  make_response(
-                {
-                    'deleted':True,
-                 'message':"hero deleted successfully"
-                 } ,200)
-        
-
-        return {'ERROR!': 'hero you are trying to delete does not exist'}
-
-
-
-@Power_api.route('/powers')
-class Powers(Resource):
-
-    def get(self):    
-        return Power.query.all(), 200
-
-
-@Power_api.route('/power/<int:id>')
-class Power_by_id(Resource):
-
-    def get(self,id):        
-        return Power.query.filter_by(id=id).first(), 200
-    
-# @Hero_Power_api.route('/hero_powers')
-# class HeroPower(Resource):
-#     def get(self):
-#         powers = HeroPower.query.all()
-     
-#         return powers_schema.dump(powers), 200
-
+  
+  
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
