@@ -266,7 +266,19 @@ class POWERS(Resource):
 
 
 
+@Power_api.route('/power/<int:id>')
+class Power_by_id(Resource):
 
+    def get(self,id):   
+        power = Power.query.filter_by(id=id).first()
+
+        if power:
+            return make_response(power_schema.dump(power))
+        else:
+            return make_response({'error':'power not found in the database'},404)
+
+      
+     
 
 
 
