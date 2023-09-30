@@ -138,8 +138,29 @@ class Heroes(Resource):
 
 
 
-  
-  
+        
+
+
+@Power_api.route('/powers')
+class Powers(Resource):
+
+    def get(self):    
+        return Power.query.all(), 200
+
+
+@Power_api.route('/power/<int:id>')
+class Power_by_id(Resource):
+
+    def get(self,id):        
+        return Power.query.filter_by(id=id).first(), 200
+    
+# @Hero_Power_api.route('/hero_powers')
+# class HeroPower(Resource):
+#     def get(self):
+#         powers = HeroPower.query.all()
+     
+#         return powers_schema.dump(powers), 200
+
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
