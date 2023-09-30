@@ -395,6 +395,7 @@ class HeroPower_by_id(Resource):
       
      
     '''----------------------Hero D E L E T I O N --------------------'''
+    
     def delete(self,id):
         hero_power = HeroPower.query.filter_by(id=id).first()
         if hero_power:
