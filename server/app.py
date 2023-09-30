@@ -393,6 +393,22 @@ class HeroPower_by_id(Resource):
             return make_response({'error':'power not found in the database'},404)
 
       
+     
+    '''----------------------Hero D E L E T I O N --------------------'''
+    def delete(self,id):
+        hero_power = HeroPower.query.filter_by(id=id).first()
+        if hero_power:
+            db.session.delete(hero_power)
+            db.session.commit()
+            return  make_response(
+                {
+                    'deleted':True,
+                 'message':"hero_power deleted successfully"
+                 } ,200)
+        
+
+        return {'ERROR!': 'hero_power you are trying to delete does not exist'}
+    
 
 
  
