@@ -14,7 +14,7 @@ app = Flask(__name__)
 # CORS(app, origins="http://localhost:3000", supports_credentials=True, methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JSON_SORT_KEYS'] =False
+app.config['JSON_SORT_KEYS'] =True
 migrate = Migrate(app, db)
 
 db.init_app(app)
@@ -51,26 +51,24 @@ api.add_namespace(Hero_Power_api)
 
 # })    
 
-# power_model = api.model('Power_by_id',{
-#     'id':fields.Integer    ,
-#     'name':fields.String,
-#     'description':fields.String,
-#     'heroes':fields.List(fields.Nested(heroes_model))
+power_model = api.model('Power_by_id',{
+    'id':fields.Integer    ,
+    'name':fields.String,
+    'description':fields.String,
+    # 'heroes':fields.List(fields.Nested(heroes_model))
 
 
-# })  
+})  
 
+hero_model = api.model('Hero_by_id',{
+    'id':fields.Integer,
+    'name':fields.String,
+    'super_name':fields.String,
+    # 'powers':fields.List(fields.Nested(powers_model))
 
+})
 
-# hero_model = api.model('Hero_by_id',{
-#     'id':fields.Integer,
-#     'name':fields.String,
-#     'super_name':fields.String,
-#     'powers':fields.List(fields.Nested(powers_model))
-
-# })
-
-hero_input= api.model('post_hero',{
+hero_post= api.model('post_hero',{
     'name':fields.String,
     'super_name':fields.String
 
@@ -80,6 +78,21 @@ hero_update = api.model('update_hero',{
     'super_name':fields.String
 })
 
+
+power_post = api.model('POST_power',{
+    'name':fields.String,
+    'description':fields.String
+})
+
+power_update = api.model('update_power',{
+    'name':fields.String,
+    'description':fields.String
+
+})
+
+
+
+'''--------------- M A R S H A M A L L O W  -----------------------------'''
 
 class PowerSchema(ma.SQLAlchemyAutoSchema):
     
@@ -98,7 +111,7 @@ class PowerSchema(ma.SQLAlchemyAutoSchema):
 
 
 power_schema = PowerSchema()
-powers_schema = PowerSchema(many =True)
+powers_schema = PowerSchema(exclude=['heroes'],many =True)
 
 
 class HeroSchema(ma.SQLAlchemyAutoSchema):
@@ -134,7 +147,7 @@ class Heroes(Resource):
                 ,404)
             return response
      
-    @Hero_api.expect(hero_input)
+    @Hero_api.expect(hero_post)
     def post(self):
         heroes = Hero.query.all()
         #data is in the payload
@@ -174,6 +187,7 @@ class Hero_by_id(Resource):
             )
 
             return response
+            
       
 
     
@@ -194,20 +208,14 @@ class Hero_by_id(Resource):
 
     '''U P D A T E ----- H E R O--------------------'''
     @Hero_api.expect(hero_update)
+    @Hero_api.marshal_with(hero_model)
     def put(self,id):
         hero = Hero.query.filter_by(id=id).first()
         if hero:
-            # updatet the super_name
             hero.super_name =Hero_api.payload['super_name']
-            #check if the super_name exists
-            if hero.super_name not in  [ h.super_name for h in Hero.query.all()]:
-                db.session.commit()
-                return make_response(heroe_schema.dump(hero))
-            else:
-                return make_response(
-                    {'error':'validatoin error',
-                     'message':'there is a hero with that super_name, please choose another one'}
-                    ,400)
+            db.session.commit()
+            return hero, 200
+       
         else:
             return make_response(
                     {'error':'hero you are updating  does not exist '}
@@ -220,24 +228,56 @@ class Hero_by_id(Resource):
 
 
 @Power_api.route('/powers')
-class Powers(Resource):
+class POWERS(Resource):
 
-    def get(self):    
-        return Power.query.all(), 200
+    def get(self):      
+        powers = Power.query.all()
+        if powers:
+            return make_response(powers_schema.dump(powers),200)
+        else:
 
-
-@Power_api.route('/power/<int:id>')
-class Power_by_id(Resource):
-
-    def get(self,id):        
-        return Power.query.filter_by(id=id).first(), 200
-    
-# @Hero_Power_api.route('/hero_powers')
-# class HeroPower(Resource):
-#     def get(self):
-#         powers = HeroPower.query.all()
+            response =  make_response(
+                {'message':'no powers in the available'}
+                ,404)
+            return response
      
-#         return powers_schema.dump(powers), 200
+    @Hero_api.expect(power_post)
+    def post(self):
+     
+        #data is in the payload
+        power = Power(
+            name= Hero_api.payload['name'],
+            description= Hero_api.payload['description'],
+        )
+       
+        if power.name not in  [ h.name for h in Power.query.all()]:
+            db.session.add(power)
+            db.session.commit()
+
+            return make_response(power_schema.dump(power),201)
+        else:
+            response = make_response(
+                {'error':'validation error',
+                 'message':'power  name already exists'}
+                ,404
+            )
+
+            return response
+
+
+
+
+
+
+
+
+    
+@Hero_Power_api.route('/hero_powers')
+class HeroPower(Resource):
+    def get(self):
+        powers = HeroPower.query.all()
+     
+        return powers_schema.dump(powers), 200
 
 
 if __name__ == '__main__':
