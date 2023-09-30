@@ -296,6 +296,24 @@ class Power_by_id(Resource):
     
 
 
+    '''-----------------U P D A T I N G --------------------'''
+    @Power_api.expect(power_update)
+    @Power_api.marshal_with(power_model)
+    def put(self,id):
+        power = Power.query.filter_by(id=id).first()
+        if power:
+            # updatet the super_name
+            power.name =Power_api.payload['name']
+            power.description =Power_api.payload['description']
+            #check if the super_name exists
+            db.session.commit()
+            return power ,200
+         
+        else:
+            return make_response(
+                    {'error':'power you are updating  does not exist '}
+                    ,400)
+            
 
 
     
