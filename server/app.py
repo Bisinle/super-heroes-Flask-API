@@ -395,7 +395,6 @@ class HeroPower_by_id(Resource):
       
      
     '''----------------------Hero D E L E T I O N --------------------'''
-    
     def delete(self,id):
         hero_power = HeroPower.query.filter_by(id=id).first()
         if hero_power:
@@ -412,7 +411,25 @@ class HeroPower_by_id(Resource):
     
 
 
- 
+    '''-----------------U P D A T I N G --------------------'''
+
+    @Hero_Power_api.expect(hero_power_update)
+    @Hero_Power_api.marshal_with(hero_power_model)
+    def put(self,id):
+        hero_power = HeroPower.query.filter_by(id=id).first()
+        if hero_power:
+            for attr in Hero_Power_api.payload:
+                setattr(hero_power, attr, Hero_Power_api.payload[attr])
+            # hero_power.strength = Hero_Power_api.payload['strength']
+            db.session.add(hero_power)
+            db.session.commit()
+            return hero_power ,200
+         
+        else:
+            return make_response(
+                    {'error':'hero_power you are updating  does not exist '}
+                    ,400)
+            
 
 
 
