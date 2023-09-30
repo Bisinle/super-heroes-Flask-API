@@ -192,6 +192,31 @@ class Hero_by_id(Resource):
 
         return {'ERROR!': 'hero you are trying to delete does not exist'}
 
+    '''U P D A T E ----- H E R O--------------------'''
+    @Hero_api.expect(hero_update)
+    def put(self,id):
+        hero = Hero.query.filter_by(id=id).first()
+        if hero:
+            # updatet the super_name
+            hero.super_name =Hero_api.payload['super_name']
+            #check if the super_name exists
+            if hero.super_name not in  [ h.super_name for h in Hero.query.all()]:
+                db.session.commit()
+                return make_response(heroe_schema.dump(hero))
+            else:
+                return make_response(
+                    {'error':'validatoin error',
+                     'message':'there is a hero with that super_name, please choose another one'}
+                    ,400)
+        else:
+            return make_response(
+                    {'error':'hero you are updating  does not exist '}
+                    ,400)
+            
+
+
+
+        
 
 
 @Power_api.route('/powers')
