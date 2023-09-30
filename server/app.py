@@ -381,6 +381,18 @@ class HeroPowers(Resource):
 
 
 
+@Hero_Power_api.route('/heroPower/<int:id>')
+class HeroPower_by_id(Resource):
+
+    def get(self,id):   
+        hero_power = HeroPower.query.filter_by(id=id).first()
+
+        if hero_power:
+            return make_response(hero_power_schema.dump(hero_power),200)
+        else:
+            return make_response({'error':'power not found in the database'},404)
+
+      
 
 
  
