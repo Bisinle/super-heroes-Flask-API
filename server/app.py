@@ -36,20 +36,23 @@ api.add_namespace(Hero_Power_api)
 
 
 # '''------------------------ROURCE MODELS----------------------'''
-# heroes_model = api.model('Heroes',{
-#     'id':fields.Integer    ,
-#     'name':fields.String,
-#     'super_name':fields.String,
 
-# })
+powers_model = api.model('Powers',{
+    'id':fields.Integer    ,
+    'name':fields.String,
+    'description':fields.String,
 
+})  
 
-# powers_model = api.model('Powers',{
-#     'id':fields.Integer    ,
-#     'name':fields.String,
-#     'description':fields.String,
+heroes_model = api.model('Heroes',{
+    'id':fields.Integer    ,
+    'name':fields.String,
+    'super_name':fields.String,
+    'powers':fields.List(fields.Nested(powers_model))
 
-# })    
+})
+
+  
 
 power_model = api.model('Power_by_id',{
     'id':fields.Integer    ,
@@ -90,6 +93,22 @@ power_update = api.model('update_power',{
 
 })
 
+hero_power_model = api.model('hero_power',{
+    'id':fields.Integer,
+    'strength':fields.String,
+    'hero_id':fields.Integer,
+    'power_id':fields.Integer,
+    # 'hero':fields.List(fields.Nested(heroes_model))
+
+})
+hero_power_post=api.model('post_hero_power',{
+    'strength':fields.String,
+    'hero_id':fields.Integer,
+    'power_id':fields.Integer,
+})
+hero_power_update = api.model('update_hero_power',{
+    'strength':fields.String
+})
 
 
 '''--------------- M A R S H A M A L L O W  -----------------------------'''
@@ -106,10 +125,6 @@ class PowerSchema(ma.SQLAlchemyAutoSchema):
     description= ma.auto_field()
     # heroes = ma.List(ma.Nested(lambda: HeroSchema(only=('id','name','super_name'))))
     heroes = ma.List(ma.Nested('HeroSchema',only=('id','name','super_name')))
-
-
-
-
 power_schema = PowerSchema()
 powers_schema = PowerSchema(exclude=['heroes'],many =True)
 
@@ -130,6 +145,19 @@ heroe_schema = HeroSchema()
 heroes_schema = HeroSchema(exclude=['powers'],many=True)
 
 
+class HeroPowerSchema(ma.SQLAlchemyAutoSchema):
+
+    class Meta:
+        model= HeroPower
+        ordered = True
+        exclude = ('created_at', 'updated_at')
+        
+    id = ma.auto_field()
+    hero_id = ma.auto_field()
+    power_id = ma.auto_field()
+
+hero_power_schema = HeroPowerSchema()
+heros_powers_schema = HeroPowerSchema(exclude =['created_at','updated_at'],many=True)
 
 '''------------------RESOURCE ROUTES-------------------------'''
 
@@ -251,10 +279,14 @@ class POWERS(Resource):
         )
        
         if power.name not in  [ h.name for h in Power.query.all()]:
-            db.session.add(power)
-            db.session.commit()
+            if len(power.description)>=20:
+                db.session.add(power)
+                db.session.commit()
 
-            return make_response(power_schema.dump(power),201)
+                return make_response(power_schema.dump(power),201)
+            else:
+                return make_response({'error':'validation error',
+                                      'message':'description  must be present and at least 20 characters long'})
         else:
             response = make_response(
                 {'error':'validation error',
@@ -318,11 +350,42 @@ class Power_by_id(Resource):
 
     
 @Hero_Power_api.route('/hero_powers')
-class HeroPower(Resource):
+class HeroPowers(Resource):
     def get(self):
-        powers = HeroPower.query.all()
-     
-        return powers_schema.dump(powers), 200
+        hero_power = HeroPower.query.all()
+        if  hero_power:
+            return heros_powers_schema.dump( hero_power), 200
+        return make_response({'notFound':'No powers in the database'},200)
+    
+    @Hero_Power_api.expect(hero_power_post)
+    # @Hero_Power_api.marshal_with(heroes_model)
+    def post(self):
+
+        hero_power = HeroPower(
+            strength=Hero_Power_api.payload['strength'],
+            hero_id=Hero_Power_api.payload['hero_id'],
+            power_id=Hero_Power_api.payload['power_id'],
+        )
+
+        db.session.add(hero_power)
+        db.session.commit()
+
+        #use the hero id to get the hero
+        hero = Hero.query.filter_by(id = hero_power.hero_id).first()
+        return make_response(heroe_schema.dump(hero),200)
+
+    
+
+
+
+
+
+
+
+
+ 
+
+
 
 
 if __name__ == '__main__':

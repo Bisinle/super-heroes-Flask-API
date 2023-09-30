@@ -47,8 +47,7 @@ class Hero(db.Model):
 class HeroPower(db.Model):
     __tablename__='heropowers'
 
-    # serialize_rules =('-pizza.rest_pizza_association', '-restaurant.rest_pizza_association',)
-
+    
     id = db.Column(db.Integer, primary_key=True)
     strength = db.Column(db.String)  
     created_at = db.Column(db.DateTime, server_default=db.func.now())
@@ -64,12 +63,13 @@ class HeroPower(db.Model):
  
 
     # # ------------------------------------------validations
-    # @validates('price')
-    # def price_validation(self, key, price):
-    #     if int(price) > 30:
-    #         raise ValueError('Price must be between KSH 1 and KSH 30')
-        
-    #     return '$ ' + str(price)
+    @validates('strength')
+    def price_validation(self, key, strength):
+        if strength not  in ['Average','Weak','Strong']:
+            raise ValueError(' strength must be one of the following : Strong, Weak or Average')
+        return strength
+    
+    
     
     
 
@@ -77,15 +77,12 @@ class HeroPower(db.Model):
     
 
     def __repr__(self):
-        return f'(id: {self.id}, name: {self.strength})'
+        return f'(id: {self.id}, strength: {self.strength}, hero_id:{self.hero_id}, power_id:{self.power_id})'
 
 
 
 class Power(db.Model):
     __tablename__ = 'powers'
-
-
-    # serialize_rules = ('-rest_pizza_association',)
 
 
     id = db.Column(db.Integer, primary_key=True)
@@ -99,6 +96,16 @@ class Power(db.Model):
     heroes = association_proxy('hero_power_association','hero')
 
 
+    
+
+  # ------------------------------------------validations
+    @validates('description')
+    def price_validation(self, key, description):
+        if len(description) < 20:
+            raise ValueError('description  must be present and at least 20 characters long')
+        return description
+    
+    
  
 
     def __repr__(self):
