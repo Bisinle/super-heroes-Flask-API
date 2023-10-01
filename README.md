@@ -66,4 +66,8 @@ python app.py
 http://127.0.0.1:5555
 ```
 
-## Usage
+## Author & License
+
+Authored by [Abdiwadud Mohemed](https://github.com/Bisinle).
+
+Licensed under the [MIT License](LICENSE) - see the [LICENSE](LICENSE) file for details.
