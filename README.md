@@ -26,40 +26,44 @@
 
 ### 1. Clone the repository
 
-```txt
+```
 git clone https://github.com/Bisinle/super-heroes-Flask-API
 ```
 
 ### 2. Navigate to the project's directory
 
-```cd super-heroes-Flask-API
-
+```
+cd super-heroes-Flask-API
 ```
 
 ### 3. Install required dependencies
 
-```pip install -r requirements.txt
-
+```
+pip install -r requirements.txt
 ```
 
 ### 4. Activate the virtual environment
 
-```source venv/bin/activate
-
+```
+source venv/bin/activate
 ```
 
-### 5. If needed, seed the database with
+### 5. to populate the databse, run
 
-```python
-python3 seed.py
+```
+python seed.py
 ```
 
 ### 6. Run the Flask server from the root directory
 
-```python
-python3 run.py
+```
+python app.py
 ```
 
-### 7. Use an API management tool e.g., `Postman` / `Insomnia` to make requests
+### 7. Copy and past the link below to the browser and test the Api's
+
+```
+http://127.0.0.1:5555
+```
 
 ## Usage
